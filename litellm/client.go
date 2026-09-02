@@ -124,18 +124,33 @@ func hoistKeyFieldsStoredInMetadata(info map[string]interface{}) {
 func (c *Client) UpdateKey(key *Key) (*Key, error) {
 	// Create a new map with only the fields that can be updated
 	updateData := map[string]interface{}{
-		"key":              key.Key,
-		"team_id":          key.TeamID,
-		"key_alias":        key.KeyAlias,
-		"aliases":          key.Aliases,
-		"permissions":      key.Permissions,
-		"model_max_budget": key.ModelMaxBudget,
-		"blocked":          key.Blocked,
+		"key":     key.Key,
+		"blocked": key.Blocked,
 	}
 
-	// The proxy keeps the stored metadata only when the field is absent, so nil means omit.
+	// Only add string fields if they are non-empty
+	if key.TeamID != "" {
+		updateData["team_id"] = key.TeamID
+	}
+	if key.BudgetDuration != "" {
+		updateData["budget_duration"] = key.BudgetDuration
+	}
+	if key.KeyAlias != "" {
+		updateData["key_alias"] = key.KeyAlias
+	}
+
+	// Only add map fields if they are non-nil
 	if key.Metadata != nil {
 		updateData["metadata"] = key.Metadata
+	}
+	if key.Aliases != nil {
+		updateData["aliases"] = key.Aliases
+	}
+	if key.Permissions != nil {
+		updateData["permissions"] = key.Permissions
+	}
+	if key.ModelMaxBudget != nil {
+		updateData["model_max_budget"] = key.ModelMaxBudget
 	}
 	if key.ModelRPMLimit != nil {
 		updateData["model_rpm_limit"] = key.ModelRPMLimit
@@ -144,11 +159,6 @@ func (c *Client) UpdateKey(key *Key) (*Key, error) {
 		updateData["model_tpm_limit"] = key.ModelTPMLimit
 	}
 
-	// The proxy rejects an empty-string budget_duration with a 400, so only
-	// send it when set.
-	if key.BudgetDuration != "" {
-		updateData["budget_duration"] = key.BudgetDuration
-	}
 	if key.Duration != "" {
 		updateData["duration"] = key.Duration
 	}

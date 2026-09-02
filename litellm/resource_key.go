@@ -401,8 +401,12 @@ func mapResourceDataToKey(d *schema.ResourceData, key *Key) {
 		val := v.(float64)
 		key.MaxBudget = &val
 	}
-	key.UserID = d.Get("user_id").(string)
-	key.TeamID = d.Get("team_id").(string)
+	if v, ok := d.GetOk("user_id"); ok {
+		key.UserID = v.(string)
+	}
+	if v, ok := d.GetOk("team_id"); ok {
+		key.TeamID = v.(string)
+	}
 	if v, ok := d.GetOk("max_parallel_requests"); ok {
 		val := v.(int)
 		key.MaxParallelRequests = &val
@@ -416,14 +420,18 @@ func mapResourceDataToKey(d *schema.ResourceData, key *Key) {
 		val := v.(int)
 		key.RPMLimit = &val
 	}
-	key.BudgetDuration = d.Get("budget_duration").(string)
+	if v, ok := d.GetOk("budget_duration"); ok {
+		key.BudgetDuration = v.(string)
+	}
 	key.AllowedCacheControls = expandStringList(d.Get("allowed_cache_controls").([]interface{}))
 	if v, ok := d.GetOk("soft_budget"); ok {
 		val := v.(float64)
 		key.SoftBudget = &val
 	}
 	key.KeyAlias = d.Get("key_alias").(string)
-	key.Duration = d.Get("duration").(string)
+	if v, ok := d.GetOk("duration"); ok {
+		key.Duration = v.(string)
+	}
 	key.Aliases = d.Get("aliases").(map[string]interface{})
 	key.Config = d.Get("config").(map[string]interface{})
 	key.Permissions = d.Get("permissions").(map[string]interface{})
